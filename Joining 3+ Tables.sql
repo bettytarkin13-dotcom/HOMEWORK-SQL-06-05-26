@@ -52,3 +52,60 @@ INSERT INTO orders VALUES
   (7,4,8,4,'2024-03-22'),
   (8,1,4,1,'2024-04-10'),
   (9,5,6,2,'2024-04-18');
+
+
+--1.List all orders with the customer's name and product name (3-table JOIN: orders + customers + products)--
+
+SELECT 
+  o.id AS order_id,
+  c.name AS customer_name,
+  p.product_name,
+  o.quantity,
+  o.order_date
+FROM orders o 
+JOIN customers c ON o.customer_id = c.id
+JOIN products p ON o.product_id = p.id;
+
+--2.Show only orders for Electronics products — include customer name, product name, and price--
+
+SELECT
+  c.name AS customer_name,
+  p.product_name,
+  p.price,
+  o.quantity,
+  o.order_date
+FROM orders o 
+JOIN customers c ON o.customer_id = c.id
+JOIN products p ON o.product_id = p.id
+WHERE p.category = 'Electronics';
+
+--3.Find all customers and any orders they have placed — show NULL for customers with no orders--
+
+SELECT
+   c.name AS customer_name,
+   o.id AS order_id,
+   o.order_date
+FROM customers c
+LEFT JOIN orders o ON c.id = o.customer_id;
+
+--4.Count how many orders each product has received (JOIN orders + products, GROUP BY product_name)--
+
+SELECT
+  p.product_name,
+  COUNT(o.id) AS total_orders
+FROM products p 
+LEFT JOIN orders o on p.id = o.product_id
+GROUP BY p.id, p.product_name
+ORDER BY total_orders DESC;
+
+--5.Find the customer who made the highest total purchase (SUM price × quantity, ORDER BY + LIMIT 1)--
+
+SELECT
+   c.name AS customer_name,
+   SUM(p.price*o.quantity) AS total_spent
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+JOIN products p ON o.product_id = p.id
+GROUP BY c.id, c.name
+ORDER BY total_spent DESC
+LIMIT 1;
